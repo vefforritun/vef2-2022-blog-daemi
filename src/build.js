@@ -36,7 +36,7 @@ async function main() {
     const slug = parsed.metadata.slug;
     const filename = join(OUTPUT_DIR, `${slug}.html`);
     
-    await writeFile(filename, blog);
+    await writeFile(filename, blog, { flag: 'w+' });
   }
 
 }

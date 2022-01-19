@@ -17,9 +17,10 @@ describe('html', () => {
     <section>
       <strong>hi</strong>
       <p>Skrifað: DATE</p>
-    </section>`
-
-    expect(parsed).toBe(output);
+    </section>
+  `
+    expect(parsed).toBe(output)
+    //expect(parsed).toBe(output);
   });
 
 });
