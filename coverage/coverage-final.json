@@ -1,2 +1,0 @@
-{"/Users/olafursverrirkjartansson/demo/timi2/src/parser.js": {"path":"/Users/olafursverrirkjartansson/demo/timi2/src/parser.js","statementMap":{"0":{"start":{"line":2,"column":2},"end":{"line":2,"column":31}}},"fnMap":{"0":{"name":"parse","decl":{"start":{"line":1,"column":16},"end":{"line":1,"column":21}},"loc":{"start":{"line":1,"column":29},"end":{"line":3,"column":1}},"line":1}},"branchMap":{},"s":{"0":1},"f":{"0":1},"b":{},"_coverageSchema":"1a1c01bbd47fc00a2c39e90264f33305004495a9","hash":"790d76d254f4429ce2f1be76a102d6b9100272a5"}
-}
