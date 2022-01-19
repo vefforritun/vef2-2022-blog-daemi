@@ -20,11 +20,11 @@ export function blogTemplate(title, blog) {
   <!doctype html>
   <html>
     <head>
-      <title>${title}</title>
+      <title>${title ?? ''}</title>
       <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-      ${blog}
+      ${blog ?? ''}
     </body>
   </html>`;
 }
