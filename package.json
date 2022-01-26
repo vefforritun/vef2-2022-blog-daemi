@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node ./src/build.js && cpy public dist",
+    "start": "node ./src/app.js",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest ./*.test.js",
     "prettier": "prettier --write .",
     "lint": "concurrently npm:lint:*",
@@ -31,6 +32,8 @@
   },
   "dependencies": {
     "cpy-cli": "^3.1.1",
+    "dotenv": "^14.3.2",
+    "express": "^4.17.2",
     "gray-matter": "^4.0.3",
     "marked": "^4.0.10"
   }
