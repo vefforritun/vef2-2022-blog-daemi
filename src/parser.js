@@ -1,5 +1,5 @@
-import { marked } from 'marked';
 import matter from 'gray-matter';
+import { marked } from 'marked';
 
 /**
  * Parse markdown string with frontmatter
@@ -13,12 +13,22 @@ export function parse(input) {
 
   const parsed = marked.parse(content);
 
+  const metadata = {};
+
+  if (title) {
+    metadata.title = title;
+  }
+
+  if (slug) {
+    metadata.slug = slug;
+  }
+
+  if (date) {
+    metadata.date = date;
+  }
+
   return {
     content: parsed,
-    metadata: {
-      title,
-      slug,
-      date,
-    },
+    metadata,
   };
 }

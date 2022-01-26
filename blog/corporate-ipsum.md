@@ -1,9 +1,3 @@
----
-title: Corporate ipsum
-slug: corporate-stooge
-date: Tue Jan 16 2018 20:00:00 GMT+0000 (GMT)
-image: ./img/business-ipsum.jpg
----
 
 # Corporate ipsum
 
