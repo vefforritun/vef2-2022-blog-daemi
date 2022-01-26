@@ -1,9 +1,6 @@
+/* eslint-disable no-await-in-loop */
+import { mkdir, readdir, readFile, stat, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { writeFile, mkdir, readFile, readdir, stat } from 'fs/promises';
-
-import graymatter from 'gray-matter';
-import { marked } from 'marked';
-
 import { blogTemplate, makeHTML, makeIndex } from './make-html.js';
 import { parse } from './parser.js';
 
@@ -24,8 +21,8 @@ async function main() {
 
   if (!(await direxists(OUTPUT_DIR))) {
     await mkdir(OUTPUT_DIR);
-  } 
-  
+  }
+
   const blogs = [];
 
   for (const file of files) {
@@ -33,6 +30,7 @@ async function main() {
     const info = await stat(path);
 
     if (info.isDirectory()) {
+      // eslint-disable-next-line no-continue
       continue;
     }
 
@@ -42,9 +40,9 @@ async function main() {
     const parsed = parse(str);
     const html = makeHTML(parsed);
     const blog = blogTemplate(parsed.metadata.title, html, true);
-    const slug = parsed.metadata.slug;
+    const { slug } = parsed.metadata;
     const filename = join(OUTPUT_DIR, `${slug}.html`);
-    
+
     await writeFile(filename, blog, { flag: 'w+' });
 
     blogs.push(parsed.metadata);

@@ -1,4 +1,3 @@
-
 import { describe, expect, it } from '@jest/globals';
 import { parse } from '../src/parser';
 
@@ -40,5 +39,4 @@ title: title
     expect(parsed.content).toBe('');
     expect(parsed.metadata.title).toBe('title');
   });
-
 });

@@ -7,10 +7,7 @@ import matter from 'gray-matter';
  * @returns {object} Parsed markdown with frontmatter metadata
  */
 export function parse(input) {
-  const {
-    content,
-    data,
-  } = matter(input);
+  const { content, data } = matter(input);
 
   const { title, slug, date } = data;
 
@@ -22,6 +19,6 @@ export function parse(input) {
       title,
       slug,
       date,
-    }
-  }
+    },
+  };
 }

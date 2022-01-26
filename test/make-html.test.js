@@ -1,4 +1,3 @@
-
 import { describe, expect, it } from '@jest/globals';
 import { blogTemplate, makeHTML } from '../src/make-html';
 
@@ -18,8 +17,8 @@ describe('html', () => {
       <strong>hi</strong>
       <p>Skrifað: DATE</p>
     </section>
-  `
-    expect(parsed).toBe(output)
+  `;
+    expect(parsed).toBe(output);
   });
 
   it('creates a html template', () => {
@@ -35,8 +34,7 @@ describe('html', () => {
     <body>
       
     </body>
-  </html>`
-    expect(parsed).toBe(output)
+  </html>`;
+    expect(parsed).toBe(output);
   });
-
 });
