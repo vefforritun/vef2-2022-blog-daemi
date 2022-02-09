@@ -12,7 +12,8 @@
     "lint": "concurrently npm:lint:*",
     "lint:eslint": "eslint ./src/**/*.js",
     "lint:stylelint": "stylelint ./public/styles.css",
-    "dev": "browser-sync start --serveStatic ./dist --server --files ./public/styles.css ./dist/*.html"
+    "static-dev": "browser-sync start --serveStatic ./dist --server --files ./public/styles.css ./dist/*.html",
+    "dev": "nodemon ./src/app.js"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +26,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.4",
     "jest": "^27.4.7",
+    "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "stylelint": "^14.3.0",
     "stylelint-config-sass-guidelines": "^9.0.1",
@@ -33,8 +35,11 @@
   "dependencies": {
     "cpy-cli": "^3.1.1",
     "dotenv": "^14.3.2",
+    "ejs": "^3.1.6",
     "express": "^4.17.2",
+    "express-validator": "^6.14.0",
     "gray-matter": "^4.0.3",
-    "marked": "^4.0.10"
+    "marked": "^4.0.10",
+    "pg": "^8.7.1"
   }
 }
