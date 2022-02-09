@@ -11,7 +11,7 @@ export function ensureLoggedIn(req, res, next) {
   return res.redirect('/login');
 }
 
-router.get('/', async (req, res) => {
+router.get('/', ensureLoggedIn, async (req, res) => {
   const comments = await listComments();
   res.render('admin', { title: 'admin svæði', comments });
 });
