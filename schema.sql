@@ -14,7 +14,3 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (username, password) VALUES ('admin', '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii');
-
--- MUNA AÐ KEYRA!
--- ALTER TABLE public.comments
---    ALTER COLUMN name TYPE character varying(128) COLLATE pg_catalog."default";
