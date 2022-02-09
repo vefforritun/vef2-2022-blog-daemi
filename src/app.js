@@ -156,7 +156,9 @@ app.get('/', async (req, res) => {
 });
 
 const validation = [
-  body('name').isLength({ min: 1 }).withMessage('Nafn má ekki vera tómt'),
+  body('name')
+    .isLength({ min: 1, max: 64 })
+    .withMessage('Nafn má ekki vera tómt'),
   body('email').isLength({ min: 1 }).withMessage('Netfang má ekki vera tómt'),
   body('email').isEmail().withMessage('Netfang verður að vera gilt netfang'),
   body('nationalId')
