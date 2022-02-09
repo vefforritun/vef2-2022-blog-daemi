@@ -1,9 +1,15 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import session from 'express-session';
 import { body, validationResult } from 'express-validator';
+import passport from 'passport';
+import { Strategy } from 'passport-local';
 import { dirname, join } from 'path';
-import pg from 'pg';
 import { fileURLToPath } from 'url';
+import xss from 'xss';
+import { createComment } from './lib/db.js';
+import { comparePasswords, findById, findByUsername } from './lib/users.js';
+import { router as adminRouter } from './routes/admin-routes.js';
 
 dotenv.config();
 
@@ -14,20 +20,22 @@ app.use(express.urlencoded({ extended: true }));
 const {
   HOST: hostname = '127.0.0.1',
   PORT: port = 3000,
-  DATABASE_URL: connectionString,
-  NODE_ENV: nodeEnv,
+  DATABASE_URL: databaseUrl,
+  SESSION_SECRET: sessionSecret = 'alæskdjfæalskdjfælaksjdf',
 } = process.env;
 
-// Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development
-// mode, á heroku, ekki á local vél
-const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
+if (!sessionSecret || !databaseUrl) {
+  console.error('Vantar .env gildi');
+  process.exit(1);
+}
 
-const pool = new pg.Pool({ connectionString, ssl });
-
-pool.on('error', (err) => {
-  console.error('postgres error, exiting...', err);
-  process.exit(-1);
-});
+app.use(
+  session({
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 const nationalIdPattern = '^[0-9]{6}-?[0-9]{4}$';
 
@@ -37,6 +45,92 @@ app.use(express.static(join(path, '../public')));
 
 app.set('views', join(path, '../views'));
 app.set('view engine', 'ejs');
+
+async function strat(username, password, done) {
+  try {
+    const user = await findByUsername(username);
+
+    if (!user) {
+      return done(null, false);
+    }
+
+    // Verður annað hvort notanda hlutur ef lykilorð rétt, eða false
+    const result = await comparePasswords(password, user.password);
+
+    return done(null, result ? user : false);
+  } catch (err) {
+    console.error(err);
+    return done(err);
+  }
+}
+
+passport.use(
+  new Strategy(
+    {
+      usernameField: 'username',
+      passwordField: 'password',
+    },
+    strat
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await findById(id);
+    return done(null, user);
+  } catch (error) {
+    return done(error);
+  }
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use('/admin', adminRouter);
+
+app.get('/login', (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.redirect('/');
+  }
+
+  let message = '';
+
+  // Athugum hvort einhver skilaboð séu til í session, ef svo er
+  //  birtum þau og hreinsum skilaboð
+  if (req.session.messages && req.session.messages.length > 0) {
+    message = req.session.messages.join(', ');
+    req.session.messages = [];
+  }
+
+  return res.send(`
+    <form method="post" action="/login">
+      <label>Notendanafn: <input type="text" name="username"></label>
+      <label>Lykilorð: <input type="password" name="password"></label>
+      <button>Innskrá</button>
+    </form>
+    <p>${message}</p>
+  `);
+});
+
+app.post(
+  '/login',
+  passport.authenticate('local', {
+    failureMessage: 'Notandanafn eða lykilorð vitlaust.',
+    failureRedirect: '/login',
+  }),
+  (req, res) => {
+    res.redirect('/admin');
+  }
+);
+
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
 
 /**
  * Hjálparfall til að athuga hvort reitur sé gildur eða ekki.
@@ -61,41 +155,6 @@ app.get('/', async (req, res) => {
   });
 });
 
-async function query(q, values) {
-  let client;
-
-  try {
-    client = await pool.connect();
-  } catch (e) {
-    console.error('Unable to connect', e);
-    return null;
-  }
-
-  try {
-    const result = await client.query(q, values);
-    return result;
-  } catch (e) {
-    console.error('Error running query', e);
-    return null;
-  } finally {
-    client.release();
-  }
-}
-
-async function createComment({ name, email, nationalId, comment }) {
-  const q = `
-    INSERT INTO
-      comments(name, email, nationalId, comment)
-    VALUES
-      ($1, $2, $3, $4)
-    RETURNING *`;
-  const values = [name, email, nationalId, comment];
-
-  const result = await query(q, values);
-
-  return result !== null;
-}
-
 const validation = [
   body('name').isLength({ min: 1 }).withMessage('Nafn má ekki vera tómt'),
   body('email').isLength({ min: 1 }).withMessage('Netfang má ekki vera tómt'),
@@ -106,6 +165,15 @@ const validation = [
   body('nationalId')
     .matches(new RegExp(nationalIdPattern))
     .withMessage('Kennitala verður að vera á formi 000000-0000 eða 0000000000'),
+];
+
+const sanitazion = [
+  body('name').trim().escape(),
+  body('email').normalizeEmail(),
+  body('name').customSanitizer((value) => xss(value)),
+  body('email').customSanitizer((value) => xss(value)),
+  body('nationalId').customSanitizer((value) => xss(value)),
+  body('comment').customSanitizer((value) => xss(value)),
 ];
 
 const validationResults = (req, res, next) => {
@@ -125,9 +193,8 @@ const validationResults = (req, res, next) => {
   return next();
 };
 
-const postComment = async (req, res) => {
+export const postComment = async (req, res) => {
   const { name, email, nationalId, comment } = req.body;
-  console.log('req.body :>> ', req.body);
 
   const created = await createComment({ name, email, nationalId, comment });
 
@@ -142,7 +209,7 @@ const postComment = async (req, res) => {
   });
 };
 
-app.post('/post', validation, validationResults, postComment);
+app.post('/post', validation, validationResults, sanitazion, postComment);
 
 app.listen(port, () => {
   console.info(`Server running at http://${hostname}:${port}/`);

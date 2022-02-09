@@ -1,0 +1,15 @@
+<%- include('header') -%>
+
+<p>Halló admin!</p>
+
+<% if (comments.length === 0) { %>
+<p>Engin komment!</p>
+<% } else { %>
+<ul>
+  <% comments.forEach((comment) => { %>
+  <li><%= comment.name %></li>
+  <% }) %>
+</ul>
+<% } %>
+
+<%- include('footer') -%>

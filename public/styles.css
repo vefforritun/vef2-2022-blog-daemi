@@ -5,14 +5,14 @@ ul {
 }
 
 ul li {
-  border: 1px solid blue;
+  border: 1px solid #000;
   border-radius: 5px;
   margin-left: 1rem;
   padding: 1rem;
 }
 
 section {
-  background-color: yellow;
+  background-color: #f0f;
   margin: 0 auto;
   max-width: 1000px;
   width: 100%;
